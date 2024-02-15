@@ -1,17 +1,36 @@
-import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
 import { connectToMongoDB } from "./lib/db";
 import User from "./models/userModel";
 
-export const { handlers, auth } = NextAuth({
-    providers: [GitHub(
-        {
+export const { handlers, auth, signIn, signOut } = NextAuth({
+    providers: [
+        GitHub({
             clientId: process.env.AUTH_GITHUB_ID,
-            clientSecret: process.env.AUTH_GITHUB_SECRET
-        }
-    )],
+            clientSecret: process.env.AUTH_GITHUB_SECRET,
+        }),
+    ],
     secret: process.env.AUTH_SECRET,
     callbacks: {
+        async session({ session }) {
+            try {
+                await connectToMongoDB();
+                if (session.user) {
+                    const user = await User.findOne({ email: session.user.email });
+                    if (user) {
+                        session.user.id = user._id;
+                        return session;
+                    } else {
+                        throw new Error("User not found");
+                    }
+                } else {
+                    throw new Error("Invalid session");
+                }
+            } catch (error) {
+                console.log(error);
+                throw new Error("Invalid session");
+            }
+        },
         async signIn({ account, profile }) {
             if (account?.provider === "github") {
                 await connectToMongoDB();
@@ -40,4 +59,4 @@ export const { handlers, auth } = NextAuth({
             return false; // indicate failed sign-in
         },
     },
-})
+});

@@ -1,10 +1,11 @@
+import { auth } from "@/auth";
 import Navbar from "@/components/shared/navbar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const session = null;
+  const session = auth();
   return (
     <div className='bg-[#fffc00]'>
       <div className='min-h-screen flex flex-col items-center justify-center max-w-7xl mx-auto'>
@@ -18,7 +19,7 @@ export default async function Home() {
             <div className='mt-4'>
               <p className='mt-2 text-lg font-semibold'>What are you waiting for?</p>
             </div>
-            {session === null ? (
+            {!session ? (
               <Button
                 asChild
                 className='mt-4 bg-black text-white flex items-center rounded-lg gap-2 mx-auto md:mx-0'
