@@ -18,7 +18,7 @@ export default async function Home() {
             <div className='mt-4'>
               <p className='mt-2 text-lg font-semibold'>What are you waiting for?</p>
             </div>
-            {!session === null ? (
+            {session === null ? (
               <Button
                 asChild
                 className='mt-4 bg-black text-white flex items-center rounded-lg gap-2 mx-auto md:mx-0'
